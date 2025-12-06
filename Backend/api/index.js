@@ -21,11 +21,11 @@ app.get('/', (req, res) => {
     res.send('Hello World');
 });
 
-// Export the Express app as a serverless function for Vercel
+// Export the Express app for Vercel (Vercel will handle it as a serverless function)
 export default app;
 
 // Start server locally when not on Vercel
-// Vercel uses the exported app, so this only runs in local development
+// Vercel uses the exported handler, so this only runs in local development
 if (!process.env.VERCEL) {
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
