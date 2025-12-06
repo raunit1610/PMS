@@ -21,8 +21,10 @@ app.get('/', (req, res) => {
     res.send('Hello World');
 });
 
-// Export the Express app for Vercel (Vercel will handle it as a serverless function)
-export default app;
+// Export handler for Vercel serverless functions
+export default async (req, res) => {
+    return app(req, res);
+};
 
 // Start server locally when not on Vercel
 // Vercel uses the exported handler, so this only runs in local development
