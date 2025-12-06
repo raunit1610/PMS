@@ -1,12 +1,20 @@
 import express from 'express';
 import cors from 'cors';
-// import dotenv from 'dotenv';
+import dotenv from 'dotenv';
 
-// dotenv.config();
+// Load environment variables (only in local development, Vercel uses its own env vars)
+if (!process.env.VERCEL) {
+    dotenv.config();
+}
 
 const app = express();
 
-app.use(cors());
+// CORS configuration
+const corsOptions = {
+    origin: process.env.CORS_ORIGIN?.split(',') || '*',
+    credentials: true
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 
 app.get('/', (req, res) => {
