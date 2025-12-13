@@ -1,0 +1,230 @@
+/* Base Button Styles */
+button {
+  position: relative;
+  border: none;
+  border-radius: 12px;
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  outline: none;
+  z-index: 1;
+}
+
+/* Primary Button - Gradient Style */
+button.primary,
+button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  color: #ffffff;
+  box-shadow: 
+    0 4px 15px rgba(102, 126, 234, 0.4),
+    0 0 20px rgba(102, 126, 234, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Button Hover Effect */
+button.primary:hover,
+button:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 
+    0 8px 25px rgba(102, 126, 234, 0.6),
+    0 0 40px rgba(102, 126, 234, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 50%, #f093fb 100%);
+}
+
+/* Button Active/Press Effect */
+button.primary:active,
+button:active {
+  transform: translateY(-1px) scale(0.98);
+  box-shadow: 
+    0 2px 10px rgba(102, 126, 234, 0.3),
+    0 0 15px rgba(102, 126, 234, 0.2);
+}
+
+/* Button Focus State */
+button.primary:focus,
+button:focus {
+  outline: 2px solid rgba(102, 126, 234, 0.5);
+  outline-offset: 3px;
+}
+
+/* Ripple Effect on Click */
+button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+  z-index: -1;
+}
+
+button:active::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* Secondary Button Style */
+button.secondary {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+  color: #ffffff;
+  border: 2px solid rgba(102, 126, 234, 0.5);
+  backdrop-filter: blur(10px);
+  box-shadow: 
+    0 4px 15px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+button.secondary:hover {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%);
+  border-color: rgba(102, 126, 234, 0.8);
+  box-shadow: 
+    0 6px 20px rgba(102, 126, 234, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Outline Button Style */
+button.outline {
+  background: transparent;
+  color: #ffffff;
+  border: 2px solid rgba(102, 126, 234, 0.6);
+  box-shadow: 0 0 20px rgba(102, 126, 234, 0.2);
+}
+
+button.outline:hover {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  border-color: rgba(102, 126, 234, 1);
+  box-shadow: 
+    0 0 30px rgba(102, 126, 234, 0.4),
+    inset 0 0 20px rgba(102, 126, 234, 0.1);
+}
+
+/* Ghost Button Style */
+button.ghost {
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+button.ghost:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+/* Disabled Button */
+button:disabled,
+button.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+button:disabled:hover,
+button.disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Loading State (for future use) */
+button.loading {
+  position: relative;
+  color: transparent;
+  pointer-events: none;
+}
+
+button.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Button Sizes */
+button.small {
+  padding: 0.5rem 1.25rem;
+  font-size: 0.875rem;
+  border-radius: 8px;
+}
+
+button.medium {
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+}
+
+button.large {
+  padding: 1rem 2.5rem;
+  font-size: 1.125rem;
+  border-radius: 14px;
+}
+
+/* Full Width Button */
+button.full-width {
+  width: 100%;
+}
+
+/* Icon Button (for future use) */
+button.icon {
+  padding: 0.75rem;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  button {
+    padding: 0.625rem 1.5rem;
+    font-size: 0.9375rem;
+  }
+
+  button.large {
+    padding: 0.875rem 2rem;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  button {
+    padding: 0.5rem 1.25rem;
+    font-size: 0.875rem;
+    letter-spacing: 0.5px;
+  }
+}
+
+/* Smooth Transitions for All States */
+button {
+  transition: 
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    background 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
