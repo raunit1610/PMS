@@ -6,13 +6,16 @@ import {
   Navigate
 } from 'react-router-dom';
 import './App.css';
-import Home from './pages/Home/Home';
+
+import Home from './Components/Home/Pages/Home';
+import Profile from './Components/Profile/Pages/Profile';
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path='/' element={<Home />} />
+        <Route path='/' element={<Home id='0'/>} />
+        <Route path='/profile' element={<Profile />} exact/>
         <Route path='*' element={<Navigate to='/' />} />
       </Routes>
     </Router>
