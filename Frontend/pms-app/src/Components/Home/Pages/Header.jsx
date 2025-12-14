@@ -1,9 +1,9 @@
 import React from "react";
-import { Link } from 'react-router-dom';
 
 import '../Styles/Header.css';
 
 import Heading1 from "../../../Utility/Elements/Heading1";
+import Navigation from "../../../Utility/Elements/Navigation";
 
 function Header(){
     return (
@@ -12,9 +12,16 @@ function Header(){
                 <Heading1 class="gradient glow animate-in" heading="PMS"/>
                 <nav className="header-nav">
                     {/* Navigation links can be added here */}
-                    <Link to="/profile" className="nav-link">
-                        Profile
-                    </Link>
+                    <Navigation path="/profile" className="nav-link" text="Profile"/>
+                    <span
+                        className="nav-link"
+                        style={{ cursor: "pointer" }}
+                        onClick={() => {
+                            localStorage.clear();
+                        }}
+                    >
+                        <Navigation path="/auth/login" className="nav-link" text="Logout"/>
+                    </span>
                 </nav>
             </div>
         </div>

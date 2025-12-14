@@ -1,0 +1,31 @@
+/* Navigation Link Styles */
+.navigation-link {
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.navigation-link:hover {
+    background-color: #f0f0f0;
+    color: #007bff;
+    transform: translateY(-1px);
+}
+
+.navigation-link:active {
+    transform: translateY(0);
+}
+
+/* Active/Current Route Styling */
+.navigation-link.active {
+    background-color: #007bff;
+    color: white;
+}
+
+.navigation-link.active:hover {
+    background-color: #0056b3;
+    color: white;
+}

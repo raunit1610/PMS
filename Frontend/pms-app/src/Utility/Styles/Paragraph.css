@@ -1,0 +1,129 @@
+/* Paragraph Base Styles */
+p {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+        sans-serif;
+    line-height: 1.6;
+    color: #4a5568;
+}
+
+/* Paragraph Variants */
+.para-sm {
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.para-md {
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+.para-lg {
+    font-size: 1.125rem;
+    line-height: 1.7;
+}
+
+.para-xl {
+    font-size: 1.25rem;
+    line-height: 1.8;
+}
+
+/* Paragraph with Specific Classes */
+.auth-subtitle {
+    color: #718096;
+    font-size: 0.95rem;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.para-muted {
+    color: #718096;
+}
+
+.para-primary {
+    color: #667eea;
+}
+
+.para-success {
+    color: #38a169;
+}
+
+.para-error {
+    color: #e53e3e;
+}
+
+.para-warning {
+    color: #d69e2e;
+}
+
+.para-info {
+    color: #3182ce;
+}
+
+/* Paragraph Spacing */
+.para-spacing-sm {
+    margin-bottom: 0.5rem;
+}
+
+.para-spacing-md {
+    margin-bottom: 1rem;
+}
+
+.para-spacing-lg {
+    margin-bottom: 1.5rem;
+}
+
+.para-spacing-xl {
+    margin-bottom: 2rem;
+}
+
+/* Paragraph Alignment */
+.para-left {
+    text-align: left;
+}
+
+.para-center {
+    text-align: center;
+}
+
+.para-right {
+    text-align: right;
+}
+
+.para-justify {
+    text-align: justify;
+}
+
+/* Paragraph Weight */
+.para-light {
+    font-weight: 300;
+}
+
+.para-normal {
+    font-weight: 400;
+}
+
+.para-medium {
+    font-weight: 500;
+}
+
+.para-semibold {
+    font-weight: 600;
+}
+
+.para-bold {
+    font-weight: 700;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+    p {
+        font-size: 0.9rem;
+    }
+
+    .auth-subtitle {
+        font-size: 0.875rem;
+    }
+}

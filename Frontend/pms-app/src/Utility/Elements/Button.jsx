@@ -3,7 +3,15 @@ import '../Styles/Button.css';
 
 function Button(props){
     return(
-        <button className={props.class} onSubmit={props.submit} onClick={props.click}>{props.text}</button>
+        <button 
+            type={props.type} 
+            className={props.class} 
+            onSubmit={props.submit} 
+            onClick={props.click}
+            disabled={props.disabled}
+        >
+            {props.text}
+        </button>
     )
 }
 

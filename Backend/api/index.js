@@ -7,6 +7,16 @@ if (!process.env.VERCEL) {
     dotenv.config();
 }
 
+//MongoDB Connection
+import ConnectionDB from '../assets/connectionDB.js';
+
+const MONGODB_URI = process.env.prm_db_MONGODB_URI || process.env.MONGODB_URI;
+
+ConnectionDB(MONGODB_URI).then(() =>
+    console.log("MongoDB Connected")
+);
+
+//Setting Up Server
 const app = express();
 
 // CORS configuration
@@ -16,10 +26,11 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-app.get('/', (req, res) => {
-    res.send('Hello World');
-});
+import AuthRouter from '../assets/routes/AuthRouter.js';
+
+app.use("/auth", AuthRouter);
 
 // Export handler for Vercel serverless functions
 export default async (req, res) => {
