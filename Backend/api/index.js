@@ -10,7 +10,7 @@ if (!process.env.VERCEL) {
 //MongoDB Connection
 import ConnectionDB from '../assets/connectionDB.js';
 
-const MONGODB_URI = process.env.local.prm_db_MONGODB_URI || process.env.MONGODB_URI;
+const MONGODB_URI = process.env.prm_db_MONGODB_URI || process.env.MONGODB_URI;
 
 ConnectionDB(MONGODB_URI).then(() =>
     console.log("MongoDB Connected")
