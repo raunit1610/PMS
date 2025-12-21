@@ -14,6 +14,59 @@ const AccountSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
+  dateOfBirth: {
+    type: String,
+    required: true,
+  },
+  gender: {
+    type: String,
+    required: true,
+  },
+  maritalStatus: {
+    type: String,
+    default: "Single",
+  },
+  bloodGroup: {
+    type: String,
+    default: "O+",
+  },
+  physicallyChallenged: {
+    type: String,
+    default: "No",
+  },
+  phone: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  phoneSecondary: {
+    type: String,
+    default: "",
+  },
+  address1: {
+    type: String,
+    default: "",
+  },
+  address2: {
+    type: String,
+    default: "",
+  },
+  city: { 
+    type: String,
+    default: "",
+  },
+  state: {
+    type: String,
+    default: "",
+  },
+  zipCode: {
+    type: String,
+    default: "",
+  },
+  country: {
+    type: String,
+    default: "India",
+  },
 });
 
 const account = mongoose.model("Account", AccountSchema);

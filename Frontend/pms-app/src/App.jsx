@@ -20,7 +20,7 @@ function App() {
         <Route path='/auth/login' element={<Login />} />
         <Route path='/auth/signup' element={<Signup />} />
         <Route path='/home/:id' element={<Home />} />
-        <Route path='/profile' element={<Profile />} />
+        <Route path='/auth/profile' element={<Profile />} />
         <Route path='/forgot-password' element={<ForgotPassword />} />
         <Route path='*' element={<Navigate to='/auth/login' replace />} />
       </Routes>

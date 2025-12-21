@@ -17,7 +17,10 @@ const Signup = () => {
     const [cred, setCred] = useState({
         name: '',
         email: '',
-        password: ''
+        password: '',
+        dateOfBirth: '',
+        gender: '',
+        phone: '',
     });
 
     const [chkPass, isSamePass] = useState('');
@@ -65,7 +68,10 @@ const Signup = () => {
             const response = await axios.post(`${API_BASE_URL}/auth/signup`, {
                 name: cred.name,
                 email: cred.email,
-                password: cred.password
+                password: cred.password,
+                dateOfBirth: cred.dateOfBirth,
+                gender: cred.gender,
+                phone: cred.phone,
             });
 
             if (response.data && response.data.message) {
@@ -162,6 +168,63 @@ const Signup = () => {
                             onChange={(e) =>
                                 isSamePass(e.target.value)
                             }
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <Label for="dateOfBirth" class="form-label" text="Date of Birth"/>
+                        <Input
+                            type="date"
+                            id="dateOfBirth"
+                            name="dateOfBirth"
+                            class="form-input"
+                            holder="Enter your date of birth"
+                            auto="date-of-birth"
+                            onChange={(e) =>
+                                setCred((prevState) => ({
+                                    ...prevState,
+                                    dateOfBirth: e.target.value
+                                }))
+                            }
+                            value={cred.dateOfBirth}
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <Label for="gender" class="form-label" text="Gender"/>
+                        <Input
+                            type="text"
+                            id="gender"
+                            name="gender"
+                            class="form-input"
+                            holder="Enter your gender"
+                            auto="gender"
+                            onChange={(e) =>
+                                setCred((prevState) => ({
+                                    ...prevState,
+                                    gender: e.target.value
+                                }))
+                            }
+                            value={cred.gender}
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <Label for="phone" class="form-label" text="Phone Number"/>
+                        <Input
+                            type="tel"
+                            id="phone"
+                            name="phone"
+                            class="form-input"
+                            holder="Enter your phone number"
+                            auto="phone"
+                            onChange={(e) =>
+                                setCred((prevState) => ({
+                                    ...prevState,
+                                    phone: e.target.value
+                                }))
+                            }
+                            value={cred.phone}
                         />
                     </div>
 
