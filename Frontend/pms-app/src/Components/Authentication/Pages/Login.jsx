@@ -45,6 +45,7 @@ const Login = () => {
             if (response.data && response.data.uid) {
                 // Store user ID in localStorage
                 localStorage.setItem('userId', response.data.uid);
+                localStorage.setItem('userName', response.data.name);
                 localStorage.setItem('isLoggedIn', 'true');
                 
                 // Navigate to home page on successful login with user ID
