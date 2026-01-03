@@ -67,6 +67,10 @@ const AccountSchema = new mongoose.Schema({
     type: String,
     default: "India",
   },
+  profilePhoto: {
+    type: String,
+    default: "",
+  },
 });
 
 const account = mongoose.model("Account", AccountSchema);

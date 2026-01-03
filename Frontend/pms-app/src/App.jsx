@@ -13,6 +13,10 @@ import Login from './Components/Authentication/Pages/Login';
 import Signup from './Components/Authentication/Pages/Signup';
 import ForgotPassword from './Components/Authentication/Pages/ForgotPassword';
 import Money from './Components/Money Management/Pages/Money';
+import Diary from './Components/Daily Diary/Pages/Diary';
+import Vault from './Components/Links Vault/Pages/Vault';
+import Tasks from './Components/Task Management/Pages/Tasks';
+import Todo from './Components/To-Do Lists/Pages/Todo';
 
 function App() {
   return (
@@ -24,6 +28,10 @@ function App() {
         <Route path='/auth/profile' element={<Profile />} />
         <Route path='/forgot-password' element={<ForgotPassword />} />
         <Route path='/feature/money/:id' element={<Money />} />
+        <Route path='/feature/Diary/:id' element={<Diary/>}/>
+        <Route path='/feature/Vault/:id' element={<Vault/>}/>
+        <Route path='/feature/Tasks/:id' element={<Tasks/>}/>
+        <Route path='/feature/Todo/:id' element={<Todo/>}/>
         <Route path='*' element={<Navigate to='/auth/login' replace />} />
       </Routes>
     </Router>

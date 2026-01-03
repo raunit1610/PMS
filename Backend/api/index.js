@@ -30,9 +30,17 @@ app.use(express.urlencoded({ extended: true }));
 
 import AuthRouter from '../assets/routes/AuthRouter.js';
 import MoneyRouter from '../assets/routes/MoneyRouter.js';
+import TaskRouter from '../assets/routes/TaskRouter.js';
+import TodoRouter from '../assets/routes/TodoRouter.js';
+import DiaryRouter from '../assets/routes/DiaryRouter.js';
+import VaultRouter from '../assets/routes/VaultRouter.js';
 
 app.use("/auth", AuthRouter);
 app.use("/feature", MoneyRouter);
+app.use("/feature", TaskRouter);
+app.use("/feature", TodoRouter);
+app.use("/feature", DiaryRouter);
+app.use("/feature", VaultRouter);
 
 // Export handler for Vercel serverless functions
 export default async (req, res) => {

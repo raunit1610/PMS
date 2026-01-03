@@ -104,9 +104,7 @@ async function handleProfilePost(req, res){
     const data = req.body;
     // Find a single user with all matching personal details
     // Update the user's personal details in the "account" collection
-    const user_personal = await account.findByIdAndUpdate(
-      data.Id,
-      {
+    const updateData = {
         name: data.name,
         password: data.password,
         email: data.emailPersonal,
@@ -123,7 +121,16 @@ async function handleProfilePost(req, res){
         state: data.state,
         zipCode: data.zipCode,
         country: data.country
-      },
+    };
+    
+    // Add profile photo if provided
+    if (data.profilePhoto) {
+        updateData.profilePhoto = data.profilePhoto;
+    }
+    
+    const user_personal = await account.findByIdAndUpdate(
+      data.Id,
+      updateData,
       { new: true }
     );
 

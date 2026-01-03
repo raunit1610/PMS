@@ -26,7 +26,6 @@ function Profile(props) {
     })();
     // Sample user data - replace with actual data from props or API
     const [userData, setUserData] = useState({
-
         // Personal Information
         name: "",
         displayName: "",
@@ -44,6 +43,7 @@ function Profile(props) {
         state: "",
         zipCode: "",
         country: "",
+        profilePhoto: "",
 
         //Professional Details
         designation: "",
@@ -64,8 +64,9 @@ function Profile(props) {
         pstate: "",
         pzipCode: "",
         pcountry: "",
-
     });
+    const [profilePhoto, setProfilePhoto] = useState('');
+    const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
 
     // Check screen size and close sidebar when clicking outside on mobile
     useEffect(() => {
@@ -112,45 +113,50 @@ function Profile(props) {
                 const response = await axios.get(`${API_BASE_URL}/auth/profile/${storedId}`);
                 // Check correct data path; assume API returns { profile: {...}, uid: "..." }
                 if (response.data && response.data.profile) {
+                    const profile = response.data.profile;
                     setUserData({
                         // Personal Information
-                        name: response.data.profile.name,
-                        displayName: response.data.profile.name,
-                        dateOfBirth: response.data.profile.dateOfBirth,
-                        gender: response.data.profile.gender,
-                        maritalStatus: response.data.profile.maritalStatus,
-                        bloodGroup: response.data.profile.bloodGroup,
-                        physicallyChallenged: response.data.profile.physicallyChallenged,
-                        emailPersonal: response.data.profile.email,
-                        phone: response.data.profile.phone,
-                        phoneSecondary: response.data.profile.phoneSecondary,
-                        address1: response.data.profile.address1,
-                        address2: response.data.profile.address2,
-                        city: response.data.profile.city,
-                        state: response.data.profile.state,
-                        zipCode: response.data.profile.zipCode,
-                        country: response.data.profile.country,
+                        name: profile.name,
+                        displayName: profile.name,
+                        dateOfBirth: profile.dateOfBirth,
+                        gender: profile.gender,
+                        maritalStatus: profile.maritalStatus,
+                        bloodGroup: profile.bloodGroup,
+                        physicallyChallenged: profile.physicallyChallenged,
+                        emailPersonal: profile.email,
+                        phone: profile.phone,
+                        phoneSecondary: profile.phoneSecondary,
+                        address1: profile.address1,
+                        address2: profile.address2,
+                        city: profile.city,
+                        state: profile.state,
+                        zipCode: profile.zipCode,
+                        country: profile.country,
+                        profilePhoto: profile.profilePhoto || '',
 
                         // Professional Details
-                        designation: response.data.profile.designation,
-                        businessUnit: response.data.profile.businessUnit,
-                        department: response.data.profile.department,
-                        workStation: response.data.profile.workStation,
-                        reportingTo: response.data.profile.reportingTo,
-                        employeeId: response.data.profile.employeeId,
-                        emailProfessional: response.data.profile.emailProfessional,
-                        dateOfJoining: response.data.profile.dateOfJoining,
-                        degree: response.data.profile.degree,
-                        institution: response.data.profile.institution,
-                        year: response.data.profile.year,
-                        percentage: response.data.profile.percentage,
-                        paddress1: response.data.profile.paddress1,
-                        paddress2: response.data.profile.paddress2,
-                        pcity: response.data.profile.pcity,
-                        pstate: response.data.profile.pstate,
-                        pzipCode: response.data.profile.pzipCode,
-                        pcountry: response.data.profile.pcountry,
+                        designation: profile.designation,
+                        businessUnit: profile.businessUnit,
+                        department: profile.department,
+                        workStation: profile.workStation,
+                        reportingTo: profile.reportingTo,
+                        employeeId: profile.employeeId,
+                        emailProfessional: profile.emailProfessional,
+                        dateOfJoining: profile.dateOfJoining,
+                        degree: profile.degree,
+                        institution: profile.institution,
+                        year: profile.year,
+                        percentage: profile.percentage,
+                        paddress1: profile.paddress1,
+                        paddress2: profile.paddress2,
+                        pcity: profile.pcity,
+                        pstate: profile.pstate,
+                        pzipCode: profile.pzipCode,
+                        pcountry: profile.pcountry,
                     });
+                    if (profile.profilePhoto) {
+                        setProfilePhoto(profile.profilePhoto);
+                    }
                 }
             } catch (err) {
                 // Use 'data?.message' for error, fallback if needed
@@ -190,6 +196,58 @@ function Profile(props) {
         }));
     };
 
+    const handlePhotoUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Validate file size (max 2MB)
+        if (file.size > 2 * 1024 * 1024) {
+            alert('Image size should be less than 2MB');
+            return;
+        }
+
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            alert('Please select an image file');
+            return;
+        }
+
+        setIsUploadingPhoto(true);
+        try {
+            const reader = new FileReader();
+            reader.onloadend = async () => {
+                const base64String = reader.result;
+                try {
+                    const storedId = localStorage.getItem('userId');
+                    if (!storedId) {
+                        alert('User ID not found');
+                        return;
+                    }
+                    const response = await axios.post(`${API_BASE_URL}/auth/profile`, {
+                        Id: storedId,
+                        profilePhoto: base64String
+                    });
+                    
+                    if (response.status === 200) {
+                        setProfilePhoto(base64String);
+                        setUserData(prev => ({ ...prev, profilePhoto: base64String }));
+                        alert('Profile photo updated successfully!');
+                    }
+                } catch (err) {
+                    console.error('Error uploading photo:', err);
+                    alert('Failed to upload profile photo. Please try again.');
+                } finally {
+                    setIsUploadingPhoto(false);
+                }
+            };
+            reader.readAsDataURL(file);
+        } catch (error) {
+            console.error('Error reading file:', error);
+            alert('Error reading image file');
+            setIsUploadingPhoto(false);
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         // Here you would typically save the data to your backend
@@ -204,12 +262,14 @@ function Profile(props) {
             const response = await axios.post(`${API_BASE_URL}/auth/profile`, obj);
             
             if (response.status == 200) {
-                setUserData(formData);
+                setUserData(prev => ({ ...prev, ...formData }));
+                alert('Profile updated successfully!');
             } else {
                 console.error('Failed to update profile', response);
             }
         } catch (err) {
             console.error('Data Upload error:', err);
+            alert('Failed to update profile. Please try again.');
         } 
         // Update userData state or make API call
         handleCloseModal();
@@ -232,8 +292,8 @@ function Profile(props) {
                         { name: 'emailPersonal', label: 'Personal Email', type: 'email', value: userData.emailPersonal },
                         { name: 'phone', label: 'Phone Number', type: 'tel', value: userData.phone },
                         { name: 'phoneSecondary', label: 'Secondary Phone', type: 'tel', value: userData.phoneSecondary || '' },
-                        { name: 'addressLine1', label: 'Address Line 1', type: 'text', value: userData.address1 || '' },
-                        { name: 'addressLine2', label: 'Address Line 2', type: 'text', value: userData.address2 || '' },
+                        { name: 'address1', label: 'Address Line 1', type: 'text', value: userData.address1 || '' },
+                        { name: 'address2', label: 'Address Line 2', type: 'text', value: userData.address2 || '' },
                         { name: 'city', label: 'City', type: 'text', value: userData.city || '' },
                         { name: 'state', label: 'State', type: 'text', value: userData.state || '' },
                         { name: 'zipCode', label: 'Zip Code', type: 'text', value: userData.zipCode || '' },
@@ -350,22 +410,38 @@ function Profile(props) {
                 ></div>
             )}
 
-            <div className="home-layout">
-                {/* Left Sidebar Navigation */}
+<div className="home-layout">
                 <div className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
-                    <div className="sidebar-logo">LT</div>
+                    <div className="sidebar-logo">PMS</div>
                     <nav className="sidebar-nav">
                         <Link to={`/feature/home/${userId}`} className="sidebar-item" onClick={closeSidebar}>
                             <span className="sidebar-icon">🏠</span>
                             <span className="sidebar-text">Home</span>
                         </Link>
                         <Link to={`/feature/money/${userId}`} className="sidebar-item" onClick={closeSidebar}>
-                            <span className="sidebar-icon">🏢</span>
+                            <span className="sidebar-icon">💰</span>
                             <span className="sidebar-text">Money</span>
+                        </Link>
+                        <Link to={`/feature/Tasks/${userId}`} className="sidebar-item" onClick={closeSidebar}>
+                            <span className="sidebar-icon">✅</span>
+                            <span className="sidebar-text">Tasks</span>
+                        </Link>
+                        <Link to={`/feature/Todo/${userId}`} className="sidebar-item" onClick={closeSidebar}>
+                            <span className="sidebar-icon">📝</span>
+                            <span className="sidebar-text">To-Do</span>
+                        </Link>
+                        <Link to={`/feature/Diary/${userId}`} className="sidebar-item" onClick={closeSidebar}>
+                            <span className="sidebar-icon">📔</span>
+                            <span className="sidebar-text">Diary</span>
+                        </Link>
+                        <Link to={`/feature/Vault/${userId}`} className="sidebar-item" onClick={closeSidebar}>
+                            <span className="sidebar-icon">🔐</span>
+                            <span className="sidebar-text">Vault</span>
                         </Link>
                     </nav>
                     <div className="sidebar-menu" onClick={closeSidebar}>☰</div>
                 </div>
+
 
                 {/* Main Content Area */}
                 <div className="profile-content">
@@ -378,7 +454,25 @@ function Profile(props) {
                     {/* User Summary Card */}
                     <div className="user-summary-card">
                         <div className="profile-picture-large">
-                            <img src="https://via.placeholder.com/120" alt={userData.name} />
+                            <div className="profile-photo-container">
+                                {profilePhoto ? (
+                                    <img src={profilePhoto} alt={userData.name} />
+                                ) : (
+                                    <div className="profile-photo-placeholder">
+                                        {userData.name ? userData.name.charAt(0).toUpperCase() : 'U'}
+                                    </div>
+                                )}
+                                <label className="profile-photo-upload">
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handlePhotoUpload}
+                                        style={{ display: 'none' }}
+                                        disabled={isUploadingPhoto}
+                                    />
+                                    <span className="upload-icon">📷</span>
+                                </label>
+                            </div>
                         </div>
                         <div className="user-name-section">
                             <h2 className="user-name">{userData.name}</h2>
