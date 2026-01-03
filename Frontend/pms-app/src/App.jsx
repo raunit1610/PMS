@@ -12,6 +12,7 @@ import Profile from './Components/Profile/Pages/Profile';
 import Login from './Components/Authentication/Pages/Login';
 import Signup from './Components/Authentication/Pages/Signup';
 import ForgotPassword from './Components/Authentication/Pages/ForgotPassword';
+import Money from './Components/Money Management/Pages/Money';
 
 function App() {
   return (
@@ -19,9 +20,10 @@ function App() {
       <Routes>
         <Route path='/auth/login' element={<Login />} />
         <Route path='/auth/signup' element={<Signup />} />
-        <Route path='/home/:id' element={<Home />} />
+        <Route path='/feature/home/:id' element={<Home />} />
         <Route path='/auth/profile' element={<Profile />} />
         <Route path='/forgot-password' element={<ForgotPassword />} />
+        <Route path='/feature/money/:id' element={<Money />} />
         <Route path='*' element={<Navigate to='/auth/login' replace />} />
       </Routes>
     </Router>
