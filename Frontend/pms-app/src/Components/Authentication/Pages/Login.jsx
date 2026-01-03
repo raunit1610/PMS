@@ -27,7 +27,7 @@ const Login = () => {
         const userId = localStorage.getItem('userId');
         if (userId) {
             // Optionally navigate to home if already logged in
-            navigate(`/home/${userId}`);
+            navigate(`/feature/home/${userId}`);
         }
     }, [navigate]);
 
@@ -49,7 +49,7 @@ const Login = () => {
                 localStorage.setItem('isLoggedIn', 'true');
                 
                 // Navigate to home page on successful login with user ID
-                navigate(`/home/${response.data.uid}`);
+                navigate(`/feature/home//${response.data.uid}`);
             }
         } catch (err) {
             setError(err.response?.data?.message || 'Login failed. Please check your credentials.');

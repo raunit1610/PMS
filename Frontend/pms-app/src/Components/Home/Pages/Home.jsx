@@ -9,6 +9,7 @@ const Home = () => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const [userName, setUserName] = useState('');
+    const [userId, setUserId] = useState('');
     // Check screen size and close sidebar when clicking outside on mobile
     useEffect(() => {
         const checkScreenSize = () => {
@@ -29,10 +30,13 @@ const Home = () => {
         // Safely read user name from localStorage once after mount
         try {
             const storedName = localStorage.getItem('userName') || '';
+            const storedId = localStorage.getItem('userId') || '';
             setUserName(storedName);
+            setUserId(storedId);
         } catch (error) {
             // Optionally handle localStorage access errors here
             setUserName('');
+            setUserId('');
         }
     }, []);
 
@@ -79,13 +83,13 @@ const Home = () => {
                 <div className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
                     <div className="sidebar-logo">LT</div>
                     <nav className="sidebar-nav">
-                        <Link to="/home" className="sidebar-item active" onClick={closeSidebar}>
+                        <Link to={`/feature/home/${userId}`} className="sidebar-item active" onClick={closeSidebar}>
                             <span className="sidebar-icon">🏠</span>
                             <span className="sidebar-text">Home</span>
                         </Link>
-                        <Link to="/organization" className="sidebar-item" onClick={closeSidebar}>
+                        <Link to={`/feature/money/${userId}`} className="sidebar-item" onClick={closeSidebar}>
                             <span className="sidebar-icon">🏢</span>
-                            <span className="sidebar-text">Organization</span>
+                            <span className="sidebar-text">Money</span>
                         </Link>
                     </nav>
                     <div className="sidebar-menu" onClick={closeSidebar}>☰</div>

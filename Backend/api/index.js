@@ -29,8 +29,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 import AuthRouter from '../assets/routes/AuthRouter.js';
+import MoneyRouter from '../assets/routes/MoneyRouter.js';
 
 app.use("/auth", AuthRouter);
+app.use("/feature", MoneyRouter);
 
 // Export handler for Vercel serverless functions
 export default async (req, res) => {
