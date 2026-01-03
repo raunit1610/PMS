@@ -444,22 +444,38 @@ const Money = () => {
                 ></div>
             )}
 
-            <div className="home-layout">
-                {/* Left Sidebar Navigation */}
+<div className="home-layout">
                 <div className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
-                    <div className="sidebar-logo">LT</div>
+                    <div className="sidebar-logo">PMS</div>
                     <nav className="sidebar-nav">
                         <Link to={`/feature/home/${userId}`} className="sidebar-item" onClick={closeSidebar}>
                             <span className="sidebar-icon">🏠</span>
                             <span className="sidebar-text">Home</span>
                         </Link>
                         <Link to={`/feature/money/${userId}`} className="sidebar-item active" onClick={closeSidebar}>
-                            <span className="sidebar-icon">🏢</span>
+                            <span className="sidebar-icon">💰</span>
                             <span className="sidebar-text">Money</span>
+                        </Link>
+                        <Link to={`/feature/Tasks/${userId}`} className="sidebar-item" onClick={closeSidebar}>
+                            <span className="sidebar-icon">✅</span>
+                            <span className="sidebar-text">Tasks</span>
+                        </Link>
+                        <Link to={`/feature/Todo/${userId}`} className="sidebar-item" onClick={closeSidebar}>
+                            <span className="sidebar-icon">📝</span>
+                            <span className="sidebar-text">To-Do</span>
+                        </Link>
+                        <Link to={`/feature/Diary/${userId}`} className="sidebar-item" onClick={closeSidebar}>
+                            <span className="sidebar-icon">📔</span>
+                            <span className="sidebar-text">Diary</span>
+                        </Link>
+                        <Link to={`/feature/Vault/${userId}`} className="sidebar-item" onClick={closeSidebar}>
+                            <span className="sidebar-icon">🔐</span>
+                            <span className="sidebar-text">Vault</span>
                         </Link>
                     </nav>
                     <div className="sidebar-menu" onClick={closeSidebar}>☰</div>
                 </div>
+
 
                 {/* Main Content Area */}
                 <div className="home-content">

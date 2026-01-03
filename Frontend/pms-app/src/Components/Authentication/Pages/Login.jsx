@@ -49,7 +49,7 @@ const Login = () => {
                 localStorage.setItem('isLoggedIn', 'true');
                 
                 // Navigate to home page on successful login with user ID
-                navigate(`/feature/home//${response.data.uid}`);
+                navigate(`/feature/home/${response.data.uid}`);
             }
         } catch (err) {
             setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
