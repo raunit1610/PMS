@@ -109,7 +109,7 @@
 .form-label {
     font-size: 0.95rem;
     font-weight: 600;
-    color: #08090a;
+    color: #08090a !important;
     margin-bottom: 0.25rem;
 }
 
@@ -120,8 +120,8 @@
     border-radius: 12px;
     font-size: 1rem;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    background-color: #ffffff;
-    color: #1e293b;
+    background-color: #ffffff !important;
+    color: #1e293b !important;
     outline: none;
     width: 100%;
     box-sizing: border-box;
@@ -129,18 +129,20 @@
 
 .form-input:hover {
     border-color: #cbd5e1;
-    background-color: #f6f9fb;
+    background-color: #f6f9fb !important;
+    color: #1e293b !important;
 }
 
 .form-input:focus {
     border-color: #667eea;
-    background-color: #f6f9fb;
+    background-color: #f6f9fb !important;
+    color: #1e293b !important;
     box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.08);
     transform: translateY(-1px);
 }
 
 .form-input::placeholder {
-    color: #94a3b8;
+    color: #94a3b8 !important;
 }
 
 .form-input-error {
