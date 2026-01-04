@@ -165,10 +165,41 @@ async function handleTaskDelete(req, res) {
   }
 }
 
+// DELETE /feature/tasks/delete-all - Delete all tasks for a user
+async function handleDeleteAllTasks(req, res) {
+  try {
+    const { userId } = req.query;
+
+    if (!userId) {
+      return res.status(400).json({
+        message: "userId is required"
+      });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({
+        message: "Invalid userId format"
+      });
+    }
+
+    const result = await Task.deleteMany({ userId });
+    
+    res.status(200).json({
+      message: "All tasks deleted successfully",
+      deletedCount: result.deletedCount
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+}
+
 export {
   handleTasksGet,
   handleTaskPost,
   handleTaskPut,
-  handleTaskDelete
+  handleTaskDelete,
+  handleDeleteAllTasks
 };
 
