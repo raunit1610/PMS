@@ -179,11 +179,42 @@ async function handleDiaryDelete(req, res) {
   }
 }
 
+// DELETE /feature/diary/delete-all - Delete all diary entries for a user
+async function handleDeleteAllDiaryEntries(req, res) {
+  try {
+    const { userId } = req.query;
+
+    if (!userId) {
+      return res.status(400).json({
+        message: "userId is required"
+      });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({
+        message: "Invalid userId format"
+      });
+    }
+
+    const result = await Diary.deleteMany({ userId });
+    
+    res.status(200).json({
+      message: "All diary entries deleted successfully",
+      deletedCount: result.deletedCount
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+}
+
 export {
   handleDiaryGet,
   handleDiaryEntryGet,
   handleDiaryPost,
   handleDiaryPut,
-  handleDiaryDelete
+  handleDiaryDelete,
+  handleDeleteAllDiaryEntries
 };
 

@@ -33,7 +33,9 @@ const MoneyDetailSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        default: ""
+        default: "pending",
+        enum: ["pending", "completed"],
+        required: true
     },
     title: {
         type: String,

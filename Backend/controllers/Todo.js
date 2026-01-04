@@ -125,10 +125,41 @@ async function handleTodoDelete(req, res) {
   }
 }
 
+// DELETE /feature/todos/delete-all - Delete all todos for a user
+async function handleDeleteAllTodos(req, res) {
+  try {
+    const { userId } = req.query;
+
+    if (!userId) {
+      return res.status(400).json({
+        message: "userId is required"
+      });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({
+        message: "Invalid userId format"
+      });
+    }
+
+    const result = await Todo.deleteMany({ userId });
+    
+    res.status(200).json({
+      message: "All todos deleted successfully",
+      deletedCount: result.deletedCount
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+}
+
 export {
   handleTodosGet,
   handleTodoPost,
   handleTodoPut,
-  handleTodoDelete
+  handleTodoDelete,
+  handleDeleteAllTodos
 };
 
