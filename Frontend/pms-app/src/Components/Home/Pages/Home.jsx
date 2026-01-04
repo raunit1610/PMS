@@ -29,6 +29,12 @@ const Home = () => {
         }
     });
     const [loading, setLoading] = useState(true);
+    const [hideAmounts, setHideAmounts] = useState({
+        totalBalance: true,
+        monthlyIncome: true,
+        monthlyExpense: true,
+        netSavings: true
+    });
 
     useEffect(() => {
         const checkScreenSize = () => {
@@ -118,7 +124,7 @@ const Home = () => {
 
             // Calculate total amount across all bank accounts
             const totalBankBalance = banks.reduce((sum, bank) => {
-                return sum + (bank.initialBalance || 0);
+                return sum + (bank.currentBalance || 0);
             }, 0);
 
             // Get expenses by category for chart
@@ -274,29 +280,65 @@ const Home = () => {
                                             <div className="money-card-header">
                                                 <span className="money-icon">💵</span>
                                                 <span className="money-label">Total Balance</span>
+                                                <button 
+                                                    className="hide-toggle-btn"
+                                                    onClick={() => setHideAmounts(prev => ({ ...prev, totalBalance: !prev.totalBalance }))}
+                                                    title={hideAmounts.totalBalance ? "Show amount" : "Hide amount"}
+                                                >
+                                                    {hideAmounts.totalBalance ? "👁️" : "🙈"}
+                                                </button>
                                             </div>
-                                            <div className="money-value">₹{dashboardData.money.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                                            <div className="money-value">
+                                                {hideAmounts.totalBalance ? "****" : `₹${dashboardData.money.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                                            </div>
                                         </div>
                                         <div className="money-card income">
                                             <div className="money-card-header">
                                                 <span className="money-icon">📈</span>
                                                 <span className="money-label">Monthly Income</span>
+                                                <button 
+                                                    className="hide-toggle-btn"
+                                                    onClick={() => setHideAmounts(prev => ({ ...prev, monthlyIncome: !prev.monthlyIncome }))}
+                                                    title={hideAmounts.monthlyIncome ? "Show amount" : "Hide amount"}
+                                                >
+                                                    {hideAmounts.monthlyIncome ? "👁️" : "🙈"}
+                                                </button>
                                             </div>
-                                            <div className="money-value">₹{dashboardData.money.monthlyIncome.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                                            <div className="money-value">
+                                                {hideAmounts.monthlyIncome ? "****" : `₹${dashboardData.money.monthlyIncome.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                                            </div>
                                         </div>
                                         <div className="money-card expense">
                                             <div className="money-card-header">
                                                 <span className="money-icon">📉</span>
                                                 <span className="money-label">Monthly Expense</span>
+                                                <button 
+                                                    className="hide-toggle-btn"
+                                                    onClick={() => setHideAmounts(prev => ({ ...prev, monthlyExpense: !prev.monthlyExpense }))}
+                                                    title={hideAmounts.monthlyExpense ? "Show amount" : "Hide amount"}
+                                                >
+                                                    {hideAmounts.monthlyExpense ? "👁️" : "🙈"}
+                                                </button>
                                             </div>
-                                            <div className="money-value">₹{dashboardData.money.monthlyExpense.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                                            <div className="money-value">
+                                                {hideAmounts.monthlyExpense ? "****" : `₹${dashboardData.money.monthlyExpense.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                                            </div>
                                         </div>
                                         <div className="money-card net">
                                             <div className="money-card-header">
                                                 <span className="money-icon">💼</span>
                                                 <span className="money-label">Net Savings</span>
+                                                <button 
+                                                    className="hide-toggle-btn"
+                                                    onClick={() => setHideAmounts(prev => ({ ...prev, netSavings: !prev.netSavings }))}
+                                                    title={hideAmounts.netSavings ? "Show amount" : "Hide amount"}
+                                                >
+                                                    {hideAmounts.netSavings ? "👁️" : "🙈"}
+                                                </button>
                                             </div>
-                                            <div className="money-value">₹{(dashboardData.money.monthlyIncome - dashboardData.money.monthlyExpense).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                                            <div className="money-value">
+                                                {hideAmounts.netSavings ? "****" : `₹${(dashboardData.money.monthlyIncome - dashboardData.money.monthlyExpense).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                                            </div>
                                         </div>
                                     </div>
 

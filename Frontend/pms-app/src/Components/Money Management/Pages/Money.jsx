@@ -22,6 +22,12 @@ const Money = () => {
     const [filterAccount, setFilterAccount] = useState('all'); // 'all' or account id
     const [searchQuery, setSearchQuery] = useState('');
     const [loading, setLoading] = useState(false);
+    const [hideAmounts, setHideAmounts] = useState({
+        totalAmount: true,
+        amountUsed: true,
+        amountAboutToBeUsed: true
+    });
+    const [hideAccountBalances, setHideAccountBalances] = useState({});
     const [newTask, setNewTask] = useState({
         title: '',
         description: '',
@@ -105,6 +111,14 @@ const Money = () => {
                 const accounts = bankResponse.data || [];
                 setBankAccounts(accounts);
                 
+                // Initialize all account balances as hidden by default
+                const hiddenBalances = {};
+                accounts.forEach(account => {
+                    const accountId = getId(account);
+                    hiddenBalances[accountId] = true; // Initially hidden
+                });
+                setHideAccountBalances(hiddenBalances);
+                
                 // Set default account for new task if accounts exist
                 if (accounts.length > 0 && !newTask.bankAccountId) {
                     setNewTask(prev => ({ ...prev, bankAccountId: getId(accounts[0]) }));
@@ -169,6 +183,8 @@ const Money = () => {
             const newAccount = response.data;
 
             setBankAccounts(prev => [...prev, newAccount]);
+            // Initialize the new account balance as hidden
+            setHideAccountBalances(prev => ({ ...prev, [getId(newAccount)]: true }));
             setNewBankAccount({
                 name: '',
                 accountNumber: '',
@@ -184,6 +200,29 @@ const Money = () => {
         } catch (error) {
             console.error('Error adding bank account:', error);
             alert(error.response?.data?.message || 'Failed to add bank account. Please try again.');
+        }
+    };
+
+    const handleDownloadCSV = async (accountId, accountName) => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/feature/money/bank/${accountId}/export`, {
+                params: { userId },
+                responseType: 'blob'
+            });
+            
+            // Create a blob and download it
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            const fileName = `bank_account_${accountName || 'export'}_${Date.now()}.csv`;
+            link.setAttribute('download', fileName);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error downloading CSV:', error);
+            alert(error.response?.data?.message || 'Failed to download CSV. Please try again.');
         }
     };
 
@@ -248,7 +287,14 @@ const Money = () => {
             const response = await axios.post(`${API_BASE_URL}/feature/money/money`, taskData);
             const newTaskData = response.data;
 
-            setTasks(prev => [...prev, newTaskData]);
+            // Refresh tasks and bank accounts from server to ensure complete sync
+            const [moneyResponse, bankResponse] = await Promise.all([
+                axios.get(`${API_BASE_URL}/feature/money/money`, { params: { userId } }),
+                axios.get(`${API_BASE_URL}/feature/money/bank`, { params: { userId } })
+            ]);
+            setTasks(moneyResponse.data || []);
+            setBankAccounts(bankResponse.data || []);
+            
             setNewTask({
                 title: '',
                 description: '',
@@ -270,46 +316,109 @@ const Money = () => {
         const currentTask = tasks.find(task => getId(task) === taskId);
         if (!currentTask) return;
 
-        const newStatus = currentTask.status === 'completed' ? 'pending' : 'completed';
+        const oldStatus = currentTask.status;
+        const newStatus = oldStatus === 'completed' ? 'pending' : 'completed';
         
-        // Optimistically update UI
-        setTasks(prev => prev.map(task =>
-            getId(task) === taskId
-                ? { ...task, status: newStatus }
-                : task
-        ));
+        // NO optimistic update - wait for server response to ensure database sync
+        // This prevents frontend from showing incorrect state
+        setLoading(true);
 
-        // Persist to database
+        // Persist to database first
         try {
-            await axios.put(`${API_BASE_URL}/feature/money/money/${taskId}`, {
+            const response = await axios.put(`${API_BASE_URL}/feature/money/money/${taskId}`, {
                 status: newStatus
             });
+            
+            // Verify the response has the correct status
+            if (!response.data) {
+                throw new Error('No data received from server');
+            }
+            
+            if (response.data.status !== newStatus) {
+                console.error('Status mismatch: Expected', newStatus, 'but got', response.data.status);
+                throw new Error(`Status update failed. Expected ${newStatus} but got ${response.data.status}`);
+            }
+            
+            // Refresh ALL tasks and bank accounts from server to ensure complete database sync
+            const [moneyResponse, bankResponse] = await Promise.all([
+                axios.get(`${API_BASE_URL}/feature/money/money`, { params: { userId } }),
+                axios.get(`${API_BASE_URL}/feature/money/bank`, { params: { userId } })
+            ]);
+            
+            setTasks(moneyResponse.data || []);
+            setBankAccounts(bankResponse.data || []);
         } catch (error) {
             console.error('Error updating task status:', error);
-            // Revert optimistic update on error
-            setTasks(prev => prev.map(task =>
-                getId(task) === taskId
-                    ? { ...task, status: currentTask.status }
-                    : task
-            ));
-            alert(error.response?.data?.message || 'Failed to update task status. Please try again.');
+            alert(error.response?.data?.message || error.message || 'Failed to update task status. Please try again.');
+            
+            // Always refresh from server to get actual state, even on error
+            try {
+                const [moneyResponse, bankResponse] = await Promise.all([
+                    axios.get(`${API_BASE_URL}/feature/money/money`, { params: { userId } }),
+                    axios.get(`${API_BASE_URL}/feature/money/bank`, { params: { userId } })
+                ]);
+                setTasks(moneyResponse.data || []);
+                setBankAccounts(bankResponse.data || []);
+            } catch (refreshError) {
+                console.error('Error refreshing data:', refreshError);
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleDeleteAllTasks = async () => {
+        if (window.confirm('Are you sure you want to delete ALL money tasks? This action cannot be undone.')) {
+            try {
+                await axios.delete(`${API_BASE_URL}/feature/money/money/delete-all`, {
+                    params: { userId }
+                });
+                // Refresh both tasks and bank accounts from server to ensure sync
+                const [moneyResponse, bankResponse] = await Promise.all([
+                    axios.get(`${API_BASE_URL}/feature/money/money`, { params: { userId } }),
+                    axios.get(`${API_BASE_URL}/feature/money/bank`, { params: { userId } })
+                ]);
+                setTasks(moneyResponse.data || []);
+                setBankAccounts(bankResponse.data || []);
+                alert('All money tasks deleted successfully!');
+            } catch (error) {
+                console.error('Error deleting all tasks:', error);
+                alert(error.response?.data?.message || 'Failed to delete all tasks. Please try again.');
+            }
         }
     };
 
     const handleDeleteTask = async (taskId) => {
         if (window.confirm('Are you sure you want to delete this task?')) {
-            setTasks(prev => prev.filter(task => getId(task) !== taskId));
+            const taskToDelete = tasks.find(task => getId(task) === taskId);
+            // NO optimistic update - wait for server response
 
-            //add delete task api logic here
+            // Delete task from database
             try {
                 await axios.put(`${API_BASE_URL}/feature/money/money/delete/${taskId}`, {
                     msq: `Deleted Money Task ${taskId}`
                 });
+                
+                // Refresh both tasks and bank accounts from server to ensure complete sync
+                const [moneyResponse, bankResponse] = await Promise.all([
+                    axios.get(`${API_BASE_URL}/feature/money/money`, { params: { userId } }),
+                    axios.get(`${API_BASE_URL}/feature/money/bank`, { params: { userId } })
+                ]);
+                setTasks(moneyResponse.data || []);
+                setBankAccounts(bankResponse.data || []);
             } catch (error) {
-                console.error('Error updating task status:', error);
-                // Revert optimistic update on error
-                setTasks(prev => prev.filter(task => getId(task) !== taskId));
+                console.error('Error deleting task:', error);
                 alert(error.response?.data?.message || 'Failed to delete money task. Please try again.');
+                
+                // Refresh from server to get actual state
+                try {
+                    const moneyResponse = await axios.get(`${API_BASE_URL}/feature/money/money`, {
+                        params: { userId }
+                    });
+                    setTasks(moneyResponse.data || []);
+                } catch (refreshError) {
+                    console.error('Error refreshing tasks:', refreshError);
+                }
             }
         }
     };
@@ -364,7 +473,7 @@ const Money = () => {
         }, 0);
 
     // Calculate per-account statistics
-    const getAccountStats = (accountId, initialBalance = 0) => {
+    const getAccountStats = (accountId, initialBalance = 0, currentBalanceFromDB = null) => {
         // Normalize accountId to string for comparison
         const normalizedAccountId = accountId?.toString ? accountId.toString() : String(accountId);
         
@@ -400,16 +509,24 @@ const Money = () => {
             .filter(t => t.status === 'pending' && t.category !== 'income')
             .reduce((sum, task) => sum + (task.amount || 0), 0);
         
-        // Current Balance: Initial Balance + Sum of completed income - Sum of completed expenses
-        const completedIncome = accountTasks
-            .filter(t => t.status === 'completed' && t.category === 'income')
-            .reduce((sum, task) => sum + (task.amount || 0), 0);
-        
-        const completedExpenses = accountTasks
-            .filter(t => t.status === 'completed' && t.category !== 'income')
-            .reduce((sum, task) => sum + (task.amount || 0), 0);
-        
-        const currentBalance = (initialBalance || 0) + completedIncome - completedExpenses;
+        // Use currentBalance from database if available, otherwise calculate it
+        // This ensures we show what's actually stored in the database
+        let currentBalance;
+        if (currentBalanceFromDB !== null && currentBalanceFromDB !== undefined) {
+            currentBalance = parseFloat(currentBalanceFromDB) || 0;
+        } else {
+            // Fallback calculation if currentBalance not in database yet
+            const completedIncome = accountTasks
+                .filter(t => t.status === 'completed' && t.category === 'income')
+                .reduce((sum, task) => sum + (parseFloat(task.amount) || 0), 0);
+            
+            const completedExpenses = accountTasks
+                .filter(t => t.status === 'completed' && t.category !== 'income')
+                .reduce((sum, task) => sum + (parseFloat(task.amount) || 0), 0);
+            
+            const initialBal = parseFloat(initialBalance) || 0;
+            currentBalance = initialBal + completedIncome - completedExpenses;
+        }
         
         return {
             total,
@@ -489,24 +606,51 @@ const Money = () => {
                             <div className="stat-card stat-card-total">
                                 <div className="stat-icon">💰</div>
                                 <div className="stat-info">
-                                    <div className="stat-label">Total Amount</div>
-                                    <div className="stat-value">₹{totalAmount.toFixed(2)}</div>
+                                    <div className="stat-label-wrapper">
+                                        <div className="stat-label">Total Amount</div>
+                                        <button 
+                                            className="hide-toggle-btn"
+                                            onClick={() => setHideAmounts(prev => ({ ...prev, totalAmount: !prev.totalAmount }))}
+                                            title={hideAmounts.totalAmount ? "Show amount" : "Hide amount"}
+                                        >
+                                            {hideAmounts.totalAmount ? "👁️" : "🙈"}
+                                        </button>
+                                    </div>
+                                    <div className="stat-value">{hideAmounts.totalAmount ? "****" : `₹${totalAmount.toFixed(2)}`}</div>
                                     <div className="stat-subtext">{tasks.length} {tasks.length === 1 ? 'task' : 'tasks'}</div>
                                 </div>
                             </div>
                             <div className="stat-card stat-card-used">
                                 <div className="stat-icon">✅</div>
                                 <div className="stat-info">
-                                    <div className="stat-label">Amount Used</div>
-                                    <div className="stat-value">₹{amountUsed.toFixed(2)}</div>
+                                    <div className="stat-label-wrapper">
+                                        <div className="stat-label">Amount Used</div>
+                                        <button 
+                                            className="hide-toggle-btn"
+                                            onClick={() => setHideAmounts(prev => ({ ...prev, amountUsed: !prev.amountUsed }))}
+                                            title={hideAmounts.amountUsed ? "Show amount" : "Hide amount"}
+                                        >
+                                            {hideAmounts.amountUsed ? "👁️" : "🙈"}
+                                        </button>
+                                    </div>
+                                    <div className="stat-value">{hideAmounts.amountUsed ? "****" : `₹${amountUsed.toFixed(2)}`}</div>
                                     <div className="stat-subtext">{completedTasks} {completedTasks === 1 ? 'task completed' : 'tasks completed'}</div>
                                 </div>
                             </div>
                             <div className="stat-card stat-card-pending">
                                 <div className="stat-icon">⏳</div>
                                 <div className="stat-info">
-                                    <div className="stat-label">Amount About to be Used</div>
-                                    <div className="stat-value">₹{amountAboutToBeUsed.toFixed(2)}</div>
+                                    <div className="stat-label-wrapper">
+                                        <div className="stat-label">Amount About to be Used</div>
+                                        <button 
+                                            className="hide-toggle-btn"
+                                            onClick={() => setHideAmounts(prev => ({ ...prev, amountAboutToBeUsed: !prev.amountAboutToBeUsed }))}
+                                            title={hideAmounts.amountAboutToBeUsed ? "Show amount" : "Hide amount"}
+                                        >
+                                            {hideAmounts.amountAboutToBeUsed ? "👁️" : "🙈"}
+                                        </button>
+                                    </div>
+                                    <div className="stat-value">{hideAmounts.amountAboutToBeUsed ? "****" : `₹${amountAboutToBeUsed.toFixed(2)}`}</div>
                                     <div className="stat-subtext">{pendingTasks} {pendingTasks === 1 ? 'task pending' : 'tasks pending'}</div>
                                 </div>
                             </div>
@@ -633,7 +777,9 @@ const Money = () => {
                             <div className="bank-accounts-list">
                                 {bankAccounts.map(account => {
                                     const accountId = getId(account);
-                                    const stats = getAccountStats(accountId, account.initialBalance || 0);
+                                    // Use currentBalance from database, fallback to initialBalance if not set
+                                    const currentBalanceFromDB = account.currentBalance !== undefined ? account.currentBalance : account.initialBalance;
+                                    const stats = getAccountStats(accountId, account.initialBalance || 0, currentBalanceFromDB);
                                     return (
                                         <div key={accountId} className="bank-account-card">
                                             <div className="account-header">
@@ -641,18 +787,36 @@ const Money = () => {
                                                     <h4>{account.name}</h4>
                                                     <p>{account.bankName} {account.accountNumber && `• ${account.accountNumber}`}</p>
                                                 </div>
-                                                <button
-                                                    className="delete-account-btn"
-                                                    onClick={() => handleDeleteBankAccount(accountId)}
-                                                    title="Delete account"
-                                                >
-                                                    🗑️
-                                                </button>
+                                                <div className="account-actions">
+                                                    <button
+                                                        className="download-account-btn"
+                                                        onClick={() => handleDownloadCSV(accountId, account.name)}
+                                                        title="Download CSV"
+                                                    >
+                                                        📥
+                                                    </button>
+                                                    <button
+                                                        className="delete-account-btn"
+                                                        onClick={() => handleDeleteBankAccount(accountId)}
+                                                        title="Delete account"
+                                                    >
+                                                        🗑️
+                                                    </button>
+                                                </div>
                                             </div>
                                             <div className="account-stats">
                                                 <div className="account-stat-item">
-                                                    <span className="stat-label">Current Balance</span>
-                                                    <span className="stat-value">₹{stats.currentBalance.toFixed(2)}</span>
+                                                    <div className="account-stat-header">
+                                                        <span className="stat-label">Current Balance</span>
+                                                        <button 
+                                                            className="hide-toggle-btn-small"
+                                                            onClick={() => setHideAccountBalances(prev => ({ ...prev, [accountId]: !prev[accountId] }))}
+                                                            title={hideAccountBalances[accountId] ? "Show balance" : "Hide balance"}
+                                                        >
+                                                            {hideAccountBalances[accountId] ? "👁️" : "🙈"}
+                                                        </button>
+                                                    </div>
+                                                    <span className="stat-value">{hideAccountBalances[accountId] ? "****" : `₹${stats.currentBalance.toFixed(2)}`}</span>
                                                     <span className="stat-hint">Income - Used</span>
                                                 </div>
                                                 <div className="account-stat-item">
@@ -719,11 +883,20 @@ const Money = () => {
                                     </button>
                                 </div>
                             </div>
-                            <Button
-                                class="add-task-btn"
-                                text={showAddForm ? "Cancel" : "+ Add Task"}
-                                click={() => setShowAddForm(!showAddForm)}
-                            />
+                            <div className="action-buttons-group">
+                                <Button
+                                    class="add-task-btn"
+                                    text={showAddForm ? "Cancel" : "+ Add Task"}
+                                    click={() => setShowAddForm(!showAddForm)}
+                                />
+                                {tasks.length > 0 && (
+                                    <Button
+                                        class="delete-all-btn"
+                                        text="Delete All Tasks"
+                                        click={handleDeleteAllTasks}
+                                    />
+                                )}
+                            </div>
                         </div>
 
                         {/* Add Task Form */}

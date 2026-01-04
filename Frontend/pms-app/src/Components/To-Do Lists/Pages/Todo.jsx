@@ -123,6 +123,21 @@ const Todo = () => {
         }
     };
 
+    const handleDeleteAllTodos = async () => {
+        if (window.confirm('Are you sure you want to delete ALL todos? This action cannot be undone.')) {
+            try {
+                await axios.delete(`${API_BASE_URL}/feature/todos/delete-all`, {
+                    params: { userId }
+                });
+                fetchTodos();
+                alert('All todos deleted successfully!');
+            } catch (error) {
+                console.error('Error deleting all todos:', error);
+                alert(error.response?.data?.message || 'Failed to delete all todos. Please try again.');
+            }
+        }
+    };
+
     const handleDeleteTodo = async (todoId) => {
         try {
             await axios.delete(`${API_BASE_URL}/feature/todos/${todoId}`);
@@ -263,6 +278,15 @@ const Todo = () => {
                                     />
                                 </div>
                             </form>
+                            {todos.length > 0 && (
+                                <div className="todo-actions-footer">
+                                    <Button
+                                        class="delete-all-btn"
+                                        text="Delete All Todos"
+                                        click={handleDeleteAllTodos}
+                                    />
+                                </div>
+                            )}
                         </div>
 
                         <div className="todo-board">
