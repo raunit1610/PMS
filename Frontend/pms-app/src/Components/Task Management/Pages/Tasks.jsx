@@ -187,6 +187,21 @@ const Tasks = () => {
         }
     };
 
+    const handleDeleteAllTasks = async () => {
+        if (window.confirm('Are you sure you want to delete ALL tasks? This action cannot be undone.')) {
+            try {
+                await axios.delete(`${API_BASE_URL}/feature/tasks/delete-all`, {
+                    params: { userId }
+                });
+                fetchTasks();
+                alert('All tasks deleted successfully!');
+            } catch (error) {
+                console.error('Error deleting all tasks:', error);
+                alert(error.response?.data?.message || 'Failed to delete all tasks. Please try again.');
+            }
+        }
+    };
+
     const handleDeleteTask = async (taskId) => {
         if (window.confirm('Are you sure you want to delete this task?')) {
             try {
@@ -347,20 +362,29 @@ const Tasks = () => {
                                     <option value="low">Low</option>
                                 </select>
                             </div>
-                            <Button
-                                class="add-task-btn"
-                                text={showAddForm ? "Cancel" : "+ Add Task"}
-                                click={() => {
-                                    setShowAddForm(!showAddForm);
-                                    setEditingTask(null);
-                                    setNewTask({
-                                        title: '',
-                                        description: '',
-                                        dueDate: '',
-                                        status: 'pending'
-                                    });
-                                }}
-                            />
+                            <div className="action-buttons-group">
+                                <Button
+                                    class="add-task-btn"
+                                    text={showAddForm ? "Cancel" : "+ Add Task"}
+                                    click={() => {
+                                        setShowAddForm(!showAddForm);
+                                        setEditingTask(null);
+                                        setNewTask({
+                                            title: '',
+                                            description: '',
+                                            dueDate: '',
+                                            status: 'pending'
+                                        });
+                                    }}
+                                />
+                                {tasks.length > 0 && (
+                                    <Button
+                                        class="delete-all-btn"
+                                        text="Delete All Tasks"
+                                        click={handleDeleteAllTasks}
+                                    />
+                                )}
+                            </div>
                         </div>
 
                         {showAddForm && (

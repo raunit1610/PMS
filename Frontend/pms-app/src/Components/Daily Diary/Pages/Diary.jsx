@@ -170,6 +170,28 @@ const Diary = () => {
         }
     };
 
+    const handleDeleteAllEntries = async () => {
+        if (window.confirm('Are you sure you want to delete ALL diary entries? This action cannot be undone.')) {
+            try {
+                await axios.delete(`${API_BASE_URL}/feature/diary/delete-all`, {
+                    params: { userId }
+                });
+                setEntries([]);
+                setCurrentEntry(null);
+                setEntry({
+                    date: selectedDate,
+                    title: '',
+                    content: '',
+                    mood: 'neutral'
+                });
+                alert('All diary entries deleted successfully!');
+            } catch (error) {
+                console.error('Error deleting all entries:', error);
+                alert(error.response?.data?.message || 'Failed to delete all entries. Please try again.');
+            }
+        }
+    };
+
     const handleDeleteEntry = async () => {
         if (!currentEntry) return;
         if (window.confirm('Are you sure you want to delete this diary entry?')) {
@@ -273,14 +295,23 @@ const Diary = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="date-selector">
-                                <label>Select Date:</label>
-                                <Input
-                                    type="date"
-                                    class="date-input"
-                                    value={selectedDate}
-                                    onChange={(e) => handleDateChange(e.target.value)}
-                                />
+                            <div className="diary-header-actions">
+                                <div className="date-selector">
+                                    <label>Select Date:</label>
+                                    <Input
+                                        type="date"
+                                        class="date-input"
+                                        value={selectedDate}
+                                        onChange={(e) => handleDateChange(e.target.value)}
+                                    />
+                                </div>
+                                {entries.length > 0 && (
+                                    <Button
+                                        class="delete-all-btn"
+                                        text="Delete All Entries"
+                                        click={handleDeleteAllEntries}
+                                    />
+                                )}
                             </div>
                         </div>
 
