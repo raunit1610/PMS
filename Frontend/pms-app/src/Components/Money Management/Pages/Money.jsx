@@ -616,7 +616,7 @@ const Money = () => {
                                             {hideAmounts.totalAmount ? "👁️" : "🙈"}
                                         </button>
                                     </div>
-                                    <div className="stat-value">{hideAmounts.totalAmount ? "****" : `₹${totalAmount.toFixed(2)}`}</div>
+                                    <div className="stat-value">{hideAmounts.totalAmount ? "****" : `₹${totalAmount > 0 ? totalAmount.toFixed(2) : "0.00"}`}</div>
                                     <div className="stat-subtext">{tasks.length} {tasks.length === 1 ? 'task' : 'tasks'}</div>
                                 </div>
                             </div>
@@ -633,7 +633,7 @@ const Money = () => {
                                             {hideAmounts.amountUsed ? "👁️" : "🙈"}
                                         </button>
                                     </div>
-                                    <div className="stat-value">{hideAmounts.amountUsed ? "****" : `₹${amountUsed.toFixed(2)}`}</div>
+                                    <div className="stat-value">{hideAmounts.amountUsed ? "****" : `₹${amountUsed > 0 ? amountUsed.toFixed(2) : "0.00"}`}</div>
                                     <div className="stat-subtext">{completedTasks} {completedTasks === 1 ? 'task completed' : 'tasks completed'}</div>
                                 </div>
                             </div>
@@ -650,7 +650,7 @@ const Money = () => {
                                             {hideAmounts.amountAboutToBeUsed ? "👁️" : "🙈"}
                                         </button>
                                     </div>
-                                    <div className="stat-value">{hideAmounts.amountAboutToBeUsed ? "****" : `₹${amountAboutToBeUsed.toFixed(2)}`}</div>
+                                    <div className="stat-value">{hideAmounts.amountAboutToBeUsed ? "****" : `₹${amountAboutToBeUsed > 0 ? amountAboutToBeUsed.toFixed(2) : "0.00"}`}</div>
                                     <div className="stat-subtext">{pendingTasks} {pendingTasks === 1 ? 'task pending' : 'tasks pending'}</div>
                                 </div>
                             </div>
@@ -816,7 +816,7 @@ const Money = () => {
                                                             {hideAccountBalances[accountId] ? "👁️" : "🙈"}
                                                         </button>
                                                     </div>
-                                                    <span className="stat-value">{hideAccountBalances[accountId] ? "****" : `₹${stats.currentBalance.toFixed(2)}`}</span>
+                                                    <span className="stat-value">{hideAccountBalances[accountId] ? "****" : `₹${stats.currentBalance > 0 ? stats.currentBalance.toFixed(2) : "0.00"}`}</span>
                                                     <span className="stat-hint">Income - Used</span>
                                                 </div>
                                                 <div className="account-stat-item">

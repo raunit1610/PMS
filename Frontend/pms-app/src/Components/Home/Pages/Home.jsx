@@ -289,7 +289,7 @@ const Home = () => {
                                                 </button>
                                             </div>
                                             <div className="money-value">
-                                                {hideAmounts.totalBalance ? "****" : `₹${dashboardData.money.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                                                {hideAmounts.totalBalance ? "****" : `₹${dashboardData.money.totalAmount > 0 ? dashboardData.money.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00"}`}
                                             </div>
                                         </div>
                                         <div className="money-card income">
@@ -305,7 +305,7 @@ const Home = () => {
                                                 </button>
                                             </div>
                                             <div className="money-value">
-                                                {hideAmounts.monthlyIncome ? "****" : `₹${dashboardData.money.monthlyIncome.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                                                {hideAmounts.monthlyIncome ? "****" : `₹${dashboardData.money.monthlyIncome > 0 ? dashboardData.money.monthlyIncome.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00"}`}
                                             </div>
                                         </div>
                                         <div className="money-card expense">
@@ -321,7 +321,7 @@ const Home = () => {
                                                 </button>
                                             </div>
                                             <div className="money-value">
-                                                {hideAmounts.monthlyExpense ? "****" : `₹${dashboardData.money.monthlyExpense.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                                                {hideAmounts.monthlyExpense ? "****" : `₹${dashboardData.money.monthlyExpense > 0 ? dashboardData.money.monthlyExpense.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00"}`}
                                             </div>
                                         </div>
                                         <div className="money-card net">
@@ -337,7 +337,7 @@ const Home = () => {
                                                 </button>
                                             </div>
                                             <div className="money-value">
-                                                {hideAmounts.netSavings ? "****" : `₹${(dashboardData.money.monthlyIncome - dashboardData.money.monthlyExpense).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                                                {hideAmounts.netSavings ? "****" : `₹${(dashboardData.money.monthlyIncome - dashboardData.money.monthlyExpense) > 0 ? (dashboardData.money.monthlyIncome - dashboardData.money.monthlyExpense).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00"}`}
                                             </div>
                                         </div>
                                     </div>
