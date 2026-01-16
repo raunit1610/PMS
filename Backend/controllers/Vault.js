@@ -294,6 +294,70 @@ async function handleVaultItemDelete(req, res) {
   }
 }
 
+// GET /feature/vaults/:vaultId/export - Export vault items as CSV
+async function handleVaultExport(req, res) {
+  try {
+    const { vaultId } = req.params;
+    const { userId } = req.query;
+
+    if (!vaultId) {
+      return res.status(400).json({
+        message: "vaultId is required"
+      });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(vaultId)) {
+      return res.status(400).json({
+        message: "Invalid vault id format"
+      });
+    }
+
+    // Verify vault exists and belongs to user if userId provided
+    const vault = await Vault.findById(vaultId);
+    if (!vault) {
+      return res.status(404).json({
+        message: "Vault not found"
+      });
+    }
+
+    if (userId && vault.userId.toString() !== userId) {
+      return res.status(403).json({
+        message: "Access denied"
+      });
+    }
+
+    // Get all items in the vault
+    const items = await VaultItem.find({ vaultId }).sort({ createdAt: -1 });
+
+    // Generate CSV content
+    let csvContent = 'Item Name,Link,Username,Password,Notes\n';
+    
+    items.forEach(item => {
+      const name = (item.name || '').replace(/"/g, '""');
+      const link = (item.link || '').replace(/"/g, '""');
+      const username = (item.username || '').replace(/"/g, '""');
+      // Decrypt password for export
+      let password = '';
+      if (item.encryptedPassword) {
+        password = item.getDecryptedPassword().replace(/"/g, '""');
+      }
+      const notes = (item.notes || '').replace(/"/g, '""').replace(/\n/g, ' ').replace(/\r/g, '');
+      
+      csvContent += `"${name}","${link}","${username}","${password}","${notes}"\n`;
+    });
+
+    // Set headers for CSV download
+    const vaultName = (vault.name || 'vault').replace(/[^a-zA-Z0-9]/g, '_');
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="vault_${vaultName}_${Date.now()}.csv"`);
+    res.status(200).send(csvContent);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+}
+
 export {
   handleVaultsGet,
   handleVaultPost,
@@ -302,6 +366,7 @@ export {
   handleVaultItemsGet,
   handleVaultItemPost,
   handleVaultItemPut,
-  handleVaultItemDelete
+  handleVaultItemDelete,
+  handleVaultExport
 };
 

@@ -7,7 +7,8 @@ import {
   handleVaultItemsGet,
   handleVaultItemPost,
   handleVaultItemPut,
-  handleVaultItemDelete
+  handleVaultItemDelete,
+  handleVaultExport
 } from "../../controllers/Vault.js";
 
 const VaultRouter = express.Router();
@@ -20,6 +21,7 @@ VaultRouter.delete("/vaults/:id", handleVaultDelete);
 
 // Vault item routes
 VaultRouter.get("/vaults/:vaultId/items", handleVaultItemsGet);
+VaultRouter.get("/vaults/:vaultId/export", handleVaultExport);
 VaultRouter.post("/vaults/:vaultId/items", handleVaultItemPost);
 VaultRouter.put("/vaults/items/:id", handleVaultItemPut);
 VaultRouter.delete("/vaults/items/:id", handleVaultItemDelete);

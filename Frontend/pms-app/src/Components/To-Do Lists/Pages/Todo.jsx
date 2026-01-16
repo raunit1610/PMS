@@ -167,6 +167,38 @@ const Todo = () => {
     const completedTodos = todos.filter(t => t.isCompleted).length;
     const pendingTodos = todos.filter(t => !t.isCompleted).length;
 
+    const handleDownloadCSV = async () => {
+        if (todos.length === 0) {
+            alert('No todos to download');
+            return;
+        }
+        if (!userId) {
+            alert('User ID is required');
+            return;
+        }
+
+        try {
+            const response = await axios.get(`${API_BASE_URL}/feature/todos/export`, {
+                params: { userId },
+                responseType: 'blob'
+            });
+            
+            // Create a blob and download it
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            const fileName = `todos_${Date.now()}.csv`;
+            link.setAttribute('download', fileName);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error downloading CSV:', error);
+            alert(error.response?.data?.message || 'Failed to download CSV. Please try again.');
+        }
+    };
+
     return (
         <div className="home-container">
             {isMobile && (
@@ -280,6 +312,11 @@ const Todo = () => {
                             </form>
                             {todos.length > 0 && (
                                 <div className="todo-actions-footer">
+                                    <Button
+                                        class="download-csv-btn"
+                                        text="📥 Download CSV"
+                                        click={handleDownloadCSV}
+                                    />
                                     <Button
                                         class="delete-all-btn"
                                         text="Delete All Todos"

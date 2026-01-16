@@ -155,11 +155,54 @@ async function handleDeleteAllTodos(req, res) {
   }
 }
 
+// GET /feature/todos/export - Export all todos as CSV
+async function handleTodosExport(req, res) {
+  try {
+    const { userId } = req.query;
+
+    if (!userId) {
+      return res.status(400).json({
+        message: "userId is required"
+      });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({
+        message: "Invalid userId format"
+      });
+    }
+
+    const todos = await Todo.find({ userId }).sort({ createdAt: -1 });
+
+    // Generate CSV content
+    let csvContent = 'Content,Status,Color,Created At\n';
+    
+    todos.forEach(todo => {
+      const content = (todo.content || '').replace(/"/g, '""').replace(/\n/g, ' ').replace(/\r/g, '');
+      const status = todo.isCompleted ? 'Completed' : 'Pending';
+      const color = todo.color || '#ffd700';
+      const createdAt = todo.createdAt ? new Date(todo.createdAt).toLocaleDateString() : '';
+      
+      csvContent += `"${content}","${status}","${color}","${createdAt}"\n`;
+    });
+
+    // Set headers for CSV download
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="todos_${Date.now()}.csv"`);
+    res.status(200).send(csvContent);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+}
+
 export {
   handleTodosGet,
   handleTodoPost,
   handleTodoPut,
   handleTodoDelete,
-  handleDeleteAllTodos
+  handleDeleteAllTodos,
+  handleTodosExport
 };
 

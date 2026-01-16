@@ -318,6 +318,40 @@ const Vault = () => {
         });
     };
 
+    const handleDownloadCSV = async () => {
+        if (!selectedVault || vaultItems.length === 0) {
+            alert('Please select a vault with items to download');
+            return;
+        }
+        if (!userId) {
+            alert('User ID is required');
+            return;
+        }
+
+        try {
+            const response = await axios.get(`${API_BASE_URL}/feature/vaults/${selectedVault}/export`, {
+                params: { userId },
+                responseType: 'blob'
+            });
+            
+            // Create a blob and download it
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            const vault = vaults.find(v => getId(v) === selectedVault);
+            const vaultName = vault ? vault.name.replace(/[^a-zA-Z0-9]/g, '_') : 'vault';
+            const fileName = `vault_${vaultName}_${Date.now()}.csv`;
+            link.setAttribute('download', fileName);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error downloading CSV:', error);
+            alert(error.response?.data?.message || 'Failed to download CSV. Please try again.');
+        }
+    };
+
     return (
         <div className="home-container">
             {isMobile && (
@@ -505,21 +539,30 @@ const Vault = () => {
                                             <h3>
                                                 {vaults.find(v => getId(v) === selectedVault)?.name || 'Vault'} Items
                                             </h3>
-                                            <Button
-                                                class="add-item-btn"
-                                                text={showItemForm ? "Cancel" : "+ Add Item"}
-                                                click={() => {
-                                                    setShowItemForm(!showItemForm);
-                                                    setEditingItem(null);
-                                                    setNewItem({
-                                                        name: '',
-                                                        link: '',
-                                                        username: '',
-                                                        password: '',
-                                                        notes: ''
-                                                    });
-                                                }}
-                                            />
+                                            <div className="items-header-actions">
+                                                {vaultItems.length > 0 && (
+                                                    <Button
+                                                        class="download-csv-btn"
+                                                        text="📥 Download CSV"
+                                                        click={handleDownloadCSV}
+                                                    />
+                                                )}
+                                                <Button
+                                                    class="add-item-btn"
+                                                    text={showItemForm ? "Cancel" : "+ Add Item"}
+                                                    click={() => {
+                                                        setShowItemForm(!showItemForm);
+                                                        setEditingItem(null);
+                                                        setNewItem({
+                                                            name: '',
+                                                            link: '',
+                                                            username: '',
+                                                            password: '',
+                                                            notes: ''
+                                                        });
+                                                    }}
+                                                />
+                                            </div>
                                         </div>
 
                                         {showItemForm && (
