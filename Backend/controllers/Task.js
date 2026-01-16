@@ -195,11 +195,56 @@ async function handleDeleteAllTasks(req, res) {
   }
 }
 
+// GET /feature/tasks/export - Export all tasks as CSV
+async function handleTasksExport(req, res) {
+  try {
+    const { userId } = req.query;
+
+    if (!userId) {
+      return res.status(400).json({
+        message: "userId is required"
+      });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({
+        message: "Invalid userId format"
+      });
+    }
+
+    const tasks = await Task.find({ userId }).sort({ dueDate: 1, createdAt: -1 });
+
+    // Generate CSV content
+    let csvContent = 'Title,Description,Due Date,Status,Priority,Created At\n';
+    
+    tasks.forEach(task => {
+      const title = (task.title || '').replace(/"/g, '""');
+      const description = (task.description || '').replace(/"/g, '""').replace(/\n/g, ' ').replace(/\r/g, '');
+      const dueDate = task.dueDate ? new Date(task.dueDate).toLocaleDateString() : '';
+      const status = task.status || 'pending';
+      const priority = task.priority || calculatePriority(task.dueDate);
+      const createdAt = task.createdAt ? new Date(task.createdAt).toLocaleDateString() : '';
+      
+      csvContent += `"${title}","${description}","${dueDate}","${status}","${priority}","${createdAt}"\n`;
+    });
+
+    // Set headers for CSV download
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="tasks_${Date.now()}.csv"`);
+    res.status(200).send(csvContent);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+}
+
 export {
   handleTasksGet,
   handleTaskPost,
   handleTaskPut,
   handleTaskDelete,
-  handleDeleteAllTasks
+  handleDeleteAllTasks,
+  handleTasksExport
 };
 

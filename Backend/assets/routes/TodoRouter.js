@@ -4,12 +4,14 @@ import {
   handleTodoPost,
   handleTodoPut,
   handleTodoDelete,
-  handleDeleteAllTodos
+  handleDeleteAllTodos,
+  handleTodosExport
 } from "../../controllers/Todo.js";
 
 const TodoRouter = express.Router();
 
 TodoRouter.get("/todos", handleTodosGet);
+TodoRouter.get("/todos/export", handleTodosExport);
 TodoRouter.post("/todos", handleTodoPost);
 TodoRouter.put("/todos/:id", handleTodoPut);
 TodoRouter.delete("/todos/:id", handleTodoDelete);
