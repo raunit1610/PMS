@@ -452,7 +452,7 @@ const Money = () => {
     // Total amount (all tasks - expenses are positive, income is negative for display)
     const totalAmount = tasks.reduce((sum, task) => {
         const amount = task.amount || 0;
-        return sum + (task.category === 'other' ? -amount : task.category === 'income' ? 0 : amount);
+        return sum + ((task.category === 'other' || task.category === 'income') ? 0 : amount);
     }, 0);
     
     // Amount used (completed tasks)
@@ -460,7 +460,7 @@ const Money = () => {
         .filter(t => t.status === 'completed')
         .reduce((sum, task) => {
             const amount = task.amount || 0;
-            return sum + (task.category === 'other' ? -amount : task.category === 'income' ? 0 : amount);
+            return sum + ((task.category === 'other' || task.category === 'income') ? 0 : amount);
         }, 0);
     
     // Amount about to be used (pending tasks - income reduces this, expenses add to it)
@@ -469,7 +469,7 @@ const Money = () => {
         .reduce((sum, task) => {
             const amount = task.amount || 0;
             // Income reduces amount to be used, expenses add to it
-            return sum + (task.category === 'other' ? -amount : task.category === 'income' ? 0 : amount);
+            return sum + ((task.category === 'other' || task.category === 'income') ? 0 : amount);
         }, 0);
 
     // Calculate per-account statistics
