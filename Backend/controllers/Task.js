@@ -34,20 +34,30 @@ async function handleTasksGet(req, res) {
 
     const tasks = await Task.find({ userId }).sort({ dueDate: 1, createdAt: -1 });
     
-    // Calculate and update priority for each task
-    const tasksWithPriority = tasks.map(task => {
-      const calculatedPriority = calculatePriority(task.dueDate);
-      if (task.priority !== calculatedPriority) {
-        // Update priority in database (async, don't wait)
-        Task.findByIdAndUpdate(task._id, { priority: calculatedPriority }).catch(console.error);
+    // Calculate and update priority for pending/in-progress tasks only,
+    // and ensure completed tasks are returned without a dueDate.
+    const tasksWithAdjustments = tasks.map(task => {
+      const taskObj = task.toObject();
+
+      if (taskObj.status === "completed") {
+        // For completed tasks, do not expose any due date
+        taskObj.dueDate = undefined;
+        return taskObj;
       }
+
+      const calculatedPriority = calculatePriority(taskObj.dueDate);
+      if (taskObj.priority !== calculatedPriority) {
+        // Update priority in database (async, don't wait)
+        Task.findByIdAndUpdate(taskObj._id, { priority: calculatedPriority }).catch(console.error);
+      }
+
       return {
-        ...task.toObject(),
+        ...taskObj,
         priority: calculatedPriority
       };
     });
     
-    res.status(200).json(tasksWithPriority);
+    res.status(200).json(tasksWithAdjustments);
   } catch (error) {
     res.status(500).json({
       message: error.message,

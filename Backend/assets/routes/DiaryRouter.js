@@ -14,8 +14,8 @@ DiaryRouter.get("/diary", handleDiaryGet);
 DiaryRouter.get("/diary/:id", handleDiaryEntryGet);
 DiaryRouter.post("/diary", handleDiaryPost);
 DiaryRouter.put("/diary/:id", handleDiaryPut);
-DiaryRouter.delete("/diary/:id", handleDiaryDelete);
 DiaryRouter.delete("/diary/delete-all", handleDeleteAllDiaryEntries);
+DiaryRouter.delete("/diary/:id", handleDiaryDelete);
 
 export default DiaryRouter;
 

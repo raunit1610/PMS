@@ -214,7 +214,9 @@ const Tasks = () => {
         }
     };
 
-    const calculateDaysUntilDue = (dueDate) => {
+    const calculateDaysUntilDue = (dueDate, status) => {
+        // No due date calculation or display for completed tasks
+        if (status === 'completed' || !dueDate) return null;
         const now = new Date();
         const due = new Date(dueDate);
         const diffTime = due - now;
@@ -235,7 +237,17 @@ const Tasks = () => {
         const priorityOrder = { urgent: 0, high: 1, medium: 2, low: 3 };
         const priorityDiff = (priorityOrder[a.priority] || 3) - (priorityOrder[b.priority] || 3);
         if (priorityDiff !== 0) return priorityDiff;
-        return new Date(a.dueDate) - new Date(b.dueDate);
+        const aHasDue = !!a.dueDate && a.status !== 'completed';
+        const bHasDue = !!b.dueDate && b.status !== 'completed';
+
+        if (aHasDue && bHasDue) {
+            return new Date(a.dueDate) - new Date(b.dueDate);
+        }
+
+        if (aHasDue && !bHasDue) return -1;
+        if (!aHasDue && bHasDue) return 1;
+
+        return 0;
     });
 
     const completedTasks = tasks.filter(t => t.status === 'completed').length;
@@ -515,7 +527,7 @@ const Tasks = () => {
                             ) : (
                                 sortedTasks.map(task => {
                                     const taskId = getId(task);
-                                    const daysUntil = calculateDaysUntilDue(task.dueDate);
+                                    const daysUntil = calculateDaysUntilDue(task.dueDate, task.status);
                                     return (
                                         <div key={taskId} className={`task-card ${task.status} priority-${task.priority}`}>
                                             <div className="task-header">
@@ -535,12 +547,14 @@ const Tasks = () => {
                                                         <span className={`status-badge status-${task.status}`}>
                                                             {task.status}
                                                         </span>
-                                                        <span className={`due-date ${daysUntil < 0 ? 'overdue' : daysUntil === 0 ? 'due-today' : ''}`}>
-                                                            📅 {new Date(task.dueDate).toLocaleDateString()} 
-                                                            {daysUntil < 0 && ` (${Math.abs(daysUntil)} days overdue)`}
-                                                            {daysUntil === 0 && ' (Due today!)'}
-                                                            {daysUntil > 0 && ` (${daysUntil} days left)`}
-                                                        </span>
+                                                        {task.status !== 'completed' && task.dueDate && daysUntil !== null && (
+                                                            <span className={`due-date ${daysUntil < 0 ? 'overdue' : daysUntil === 0 ? 'due-today' : ''}`}>
+                                                                📅 {new Date(task.dueDate).toLocaleDateString()} 
+                                                                {daysUntil < 0 && ` (${Math.abs(daysUntil)} days overdue)`}
+                                                                {daysUntil === 0 && ' (Due today!)'}
+                                                                {daysUntil > 0 && ` (${daysUntil} days left)`}
+                                                            </span>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </div>

@@ -445,6 +445,31 @@ const Money = () => {
         return matchesStatus && matchesAccount && matchesSearch;
     });
 
+    // Sort tasks so that pending tasks appear before completed tasks
+    const sortedFilteredTasks = [...filteredTasks].sort((a, b) => {
+        const statusOrder = { pending: 0, 'in-progress': 1, completed: 2 };
+        const aStatusRank = statusOrder[a.status] ?? 3;
+        const bStatusRank = statusOrder[b.status] ?? 3;
+        if (aStatusRank !== bStatusRank) {
+            return aStatusRank - bStatusRank;
+        }
+
+        // If same status, try to sort by dueDate (earlier first), otherwise by createdAt
+        const aDue = a.dueDate ? new Date(a.dueDate) : null;
+        const bDue = b.dueDate ? new Date(b.dueDate) : null;
+        if (aDue && bDue && aDue.getTime() !== bDue.getTime()) {
+            return aDue - bDue;
+        }
+
+        const aCreated = a.createdAt ? new Date(a.createdAt) : null;
+        const bCreated = b.createdAt ? new Date(b.createdAt) : null;
+        if (aCreated && bCreated && aCreated.getTime() !== bCreated.getTime()) {
+            return bCreated - aCreated; // newer first
+        }
+
+        return 0;
+    });
+
     // Calculate amounts - income reduces amount to be used, expenses add to it
     const completedTasks = tasks.filter(t => t.status === 'completed').length;
     const pendingTasks = tasks.filter(t => t.status === 'pending').length;
@@ -1031,14 +1056,14 @@ const Money = () => {
 
                         {/* Tasks List */}
                         <div className="tasks-list">
-                            {filteredTasks.length === 0 ? (
+                            {sortedFilteredTasks.length === 0 ? (
                                 <div className="empty-state">
                                     <div className="empty-icon">📝</div>
                                     <h3>No tasks found</h3>
                                     <p>{tasks.length === 0 ? 'Create your first money task to get started!' : 'Try adjusting your filters or search query.'}</p>
                                 </div>
                             ) : (
-                                filteredTasks.map(task => {
+                                sortedFilteredTasks.map(task => {
                                     const taskId = getId(task);
                                     return (
                                         <div key={taskId} className={`task-card ${task.status} priority-${task.priority}`}>
