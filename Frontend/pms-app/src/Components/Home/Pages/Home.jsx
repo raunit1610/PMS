@@ -24,6 +24,7 @@ const Home = () => {
             totalAmount: 0,
             monthlyExpense: 0,
             monthlyIncome: 0,
+            monthlyOthers: 0,
             expenses: [],
             income: []
         }
@@ -122,6 +123,16 @@ const Home = () => {
                 })
                 .reduce((sum, m) => sum + (m.amount || 0), 0);
 
+            const monthlyOthers = money
+                .filter(m => {
+                    if (m.status !== 'completed') return false;
+                    const taskDate = new Date(m.dueDate || Date.now());
+                    return taskDate.getMonth() === currentMonth && 
+                           taskDate.getFullYear() === currentYear &&
+                           m.category === 'other';
+                })
+                .reduce((sum, m) => sum + (m.amount || 0), 0);
+
             // Calculate total amount across all bank accounts
             const totalBankBalance = banks.reduce((sum, bank) => {
                 return sum + (bank.currentBalance || 0);
@@ -162,6 +173,7 @@ const Home = () => {
                     totalAmount: totalBankBalance,
                     monthlyExpense: monthlyExpenses,
                     monthlyIncome: monthlyIncome,
+                    monthlyOthers: monthlyOthers,
                     expenses: Object.entries(expensesByCategory).map(([category, amount]) => ({
                         category,
                         amount
@@ -305,7 +317,7 @@ const Home = () => {
                                                 </button>
                                             </div>
                                             <div className="money-value">
-                                                {hideAmounts.monthlyIncome ? "****" : `₹${dashboardData.money.monthlyIncome > 0 ? dashboardData.money.monthlyIncome.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00"}`}
+                                                {hideAmounts.monthlyIncome ? "****" : `₹${(dashboardData.money.monthlyIncome - dashboardData.money.monthlyOthers) > 0 ? (dashboardData.money.monthlyIncome - dashboardData.money.monthlyOthers).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00"}`}
                                             </div>
                                         </div>
                                         <div className="money-card expense">
@@ -321,7 +333,7 @@ const Home = () => {
                                                 </button>
                                             </div>
                                             <div className="money-value">
-                                                {hideAmounts.monthlyExpense ? "****" : `₹${dashboardData.money.monthlyExpense > 0 ? dashboardData.money.monthlyExpense.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00"}`}
+                                                {hideAmounts.monthlyExpense ? "****" : `₹${(dashboardData.money.monthlyExpense - dashboardData.money.monthlyOthers) > 0 ? (dashboardData.money.monthlyExpense - dashboardData.money.monthlyOthers).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00"}`}
                                             </div>
                                         </div>
                                         <div className="money-card net">
@@ -337,7 +349,7 @@ const Home = () => {
                                                 </button>
                                             </div>
                                             <div className="money-value">
-                                                {hideAmounts.netSavings ? "****" : `₹${(dashboardData.money.monthlyIncome - dashboardData.money.monthlyExpense) > 0 ? (dashboardData.money.monthlyIncome - dashboardData.money.monthlyExpense).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00"}`}
+                                                {hideAmounts.netSavings ? "****" : `₹${((dashboardData.money.monthlyIncome - dashboardData.money.monthlyOthers) - (dashboardData.money.monthlyExpense - dashboardData.money.monthlyOthers)) > 0 ? ((dashboardData.money.monthlyIncome - dashboardData.money.monthlyOthers) - (dashboardData.money.monthlyExpense - dashboardData.money.monthlyOthers)).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00"}`}
                                             </div>
                                         </div>
                                     </div>
