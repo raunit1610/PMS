@@ -323,7 +323,7 @@ const Home = () => {
                                         <div className="money-card expense">
                                             <div className="money-card-header">
                                                 <span className="money-icon">📉</span>
-                                                <span className="money-label">Monthly Expense</span>
+                                                <span className="money-label">Monthly Spendings</span>
                                                 <button 
                                                     className="hide-toggle-btn"
                                                     onClick={() => setHideAmounts(prev => ({ ...prev, monthlyExpense: !prev.monthlyExpense }))}
@@ -339,7 +339,7 @@ const Home = () => {
                                         <div className="money-card net">
                                             <div className="money-card-header">
                                                 <span className="money-icon">💼</span>
-                                                <span className="money-label">Net Savings</span>
+                                                <span className="money-label">Monthly Net Savings</span>
                                                 <button 
                                                     className="hide-toggle-btn"
                                                     onClick={() => setHideAmounts(prev => ({ ...prev, netSavings: !prev.netSavings }))}
