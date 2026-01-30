@@ -632,7 +632,7 @@ const Money = () => {
                                 <div className="stat-icon">💰</div>
                                 <div className="stat-info">
                                     <div className="stat-label-wrapper">
-                                        <div className="stat-label">Total Amount</div>
+                                        <div className="stat-label">Total Amount Spendings</div>
                                         <button 
                                             className="hide-toggle-btn"
                                             onClick={() => setHideAmounts(prev => ({ ...prev, totalAmount: !prev.totalAmount }))}
@@ -649,7 +649,7 @@ const Money = () => {
                                 <div className="stat-icon">✅</div>
                                 <div className="stat-info">
                                     <div className="stat-label-wrapper">
-                                        <div className="stat-label">Amount Used</div>
+                                        <div className="stat-label">Amount Spent</div>
                                         <button 
                                             className="hide-toggle-btn"
                                             onClick={() => setHideAmounts(prev => ({ ...prev, amountUsed: !prev.amountUsed }))}
@@ -666,7 +666,7 @@ const Money = () => {
                                 <div className="stat-icon">⏳</div>
                                 <div className="stat-info">
                                     <div className="stat-label-wrapper">
-                                        <div className="stat-label">Amount About to be Used</div>
+                                        <div className="stat-label">Amount About to be Spend</div>
                                         <button 
                                             className="hide-toggle-btn"
                                             onClick={() => setHideAmounts(prev => ({ ...prev, amountAboutToBeUsed: !prev.amountAboutToBeUsed }))}
@@ -686,7 +686,7 @@ const Money = () => {
                             <div className="stat-card stat-card-tasks-total">
                                 <div className="stat-icon">📊</div>
                                 <div className="stat-info">
-                                    <div className="stat-label">Total Tasks</div>
+                                    <div className="stat-label">Total Transactions</div>
                                     <div className="stat-value">{tasks.length}</div>
                                     <div className="stat-subtext">All tasks combined</div>
                                 </div>
@@ -694,7 +694,7 @@ const Money = () => {
                             <div className="stat-card stat-card-tasks-completed">
                                 <div className="stat-icon">✅</div>
                                 <div className="stat-info">
-                                    <div className="stat-label">Completed Tasks</div>
+                                    <div className="stat-label">Completed Transactions</div>
                                     <div className="stat-value">{completedTasks}</div>
                                     <div className="stat-subtext">₹{amountUsed.toFixed(2)} used</div>
                                 </div>
@@ -702,7 +702,7 @@ const Money = () => {
                             <div className="stat-card stat-card-tasks-pending">
                                 <div className="stat-icon">⏳</div>
                                 <div className="stat-info">
-                                    <div className="stat-label">Pending Tasks</div>
+                                    <div className="stat-label">Pending Transactions</div>
                                     <div className="stat-value">{pendingTasks}</div>
                                     <div className="stat-subtext">₹{amountAboutToBeUsed.toFixed(2)} pending</div>
                                 </div>
@@ -850,7 +850,7 @@ const Money = () => {
                                                     <span className="stat-hint">Current month only</span>
                                                 </div>
                                                 <div className="account-stat-item">
-                                                    <span className="stat-label">Used</span>
+                                                    <span className="stat-label">Spent</span>
                                                     <span className="stat-value used">₹{stats.used.toFixed(2)}</span>
                                                     <span className="stat-hint">Completed expenses</span>
                                                 </div>
