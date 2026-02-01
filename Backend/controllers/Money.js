@@ -193,19 +193,19 @@ async function handleMoneyDetailPost(req, res) {
     });
 
     // If task is created as completed, update currentBalance immediately
-    if (status === "completed") {
-      const allTasks = await Money.find({ bankAccountId, userId });
-      const completedIncome = allTasks
-        .filter(t => t.status === 'completed' && t.category === 'income')
-        .reduce((sum, task) => sum + (parseFloat(task.amount) || 0), 0);
-      const completedExpenses = allTasks
-        .filter(t => t.status === 'completed' && t.category !== 'income')
-        .reduce((sum, task) => sum + (parseFloat(task.amount) || 0), 0);
+    // if (status === "completed") {
+    //   const allTasks = await Money.find({ bankAccountId, userId });
+    //   const completedIncome = allTasks
+    //     .filter(t => t.status === 'completed' && t.category === 'income')
+    //     .reduce((sum, task) => sum + (parseFloat(task.amount) || 0), 0);
+    //   const completedExpenses = allTasks
+    //     .filter(t => t.status === 'completed' && t.category !== 'income')
+    //     .reduce((sum, task) => sum + (parseFloat(task.amount) || 0), 0);
       
-      const newCurrentBalance = (bankAccount.initialBalance || 0) + completedIncome - completedExpenses;
-      bankAccount.currentBalance = newCurrentBalance;
-      await bankAccount.save();
-    }
+    //   const newCurrentBalance = (bankAccount.initialBalance || 0) + completedIncome - completedExpenses;
+    //   bankAccount.currentBalance = newCurrentBalance;
+    //   await bankAccount.save();
+    // }
 
     // Populate the bankAccountId field before returning
     await moneyDetail.populate('bankAccountId', 'name bankName accountNumber');
@@ -330,27 +330,32 @@ async function handleMoneyDetailPut(req, res) {
       const bankAccount = await BankAccount.findById(bankAccountId);
       if (bankAccount) {
         // Get all tasks for this account
-        const allTasks = await Money.find({ 
-          bankAccountId: bankAccountId, 
-          userId: updatedMoneyDetail.userId 
-        });
+        // const allTasks = await Money.find({ 
+        //   bankAccountId: bankAccountId, 
+        //   userId: updatedMoneyDetail.userId 
+        // });
         
-        // Calculate current balance: initialBalance + completedIncome - completedExpenses
-        const completedIncome = allTasks
-          .filter(t => t.status === 'completed' && t.category === 'income')
-          .reduce((sum, task) => sum + (parseFloat(task.amount) || 0), 0);
+        // // Calculate current balance: initialBalance + completedIncome - completedExpenses
+        // const completedIncome = allTasks
+        //   .filter(t => t.status === 'completed' && t.category === 'income')
+        //   .reduce((sum, task) => sum + (parseFloat(task.amount) || 0), 0);
         
-        const completedExpenses = allTasks
-          .filter(t => t.status === 'completed' && t.category !== 'income')
-          .reduce((sum, task) => sum + (parseFloat(task.amount) || 0), 0);
+        // const completedExpenses = allTasks
+        //   .filter(t => t.status === 'completed' && t.category !== 'income')
+        //   .reduce((sum, task) => sum + (parseFloat(task.amount) || 0), 0);
+
+        const completedTaskAmount = updatedMoneyDetail.amount;
         
-        const newCurrentBalance = (bankAccount.initialBalance || 0) + completedIncome - completedExpenses;
-        
-        // Update currentBalance in database
-        bankAccount.currentBalance = newCurrentBalance;
+        if (updatedMoneyDetail.status === 'completed' && updatedMoneyDetail.category === 'income') {
+          bankAccount.currentBalance = (bankAccount.currentBalance || bankAccount.initialBalance || 0) + completedTaskAmount;
+        } else if (updatedMoneyDetail.status === 'completed' && updatedMoneyDetail.category !== 'income') {
+          bankAccount.currentBalance = (bankAccount.currentBalance || bankAccount.initialBalance || 0) - completedTaskAmount;
+        } else if (updatedMoneyDetail.status === 'pending' && updatedMoneyDetail.category === 'income') {
+          bankAccount.currentBalance = (bankAccount.currentBalance || bankAccount.initialBalance || 0) - completedTaskAmount;
+        } else if (updatedMoneyDetail.status === 'pending' && updatedMoneyDetail.category !== 'income') {
+          bankAccount.currentBalance = (bankAccount.currentBalance || bankAccount.initialBalance || 0) + completedTaskAmount;
+        }
         await bankAccount.save();
-        
-        // console.log(`Updated currentBalance for account ${bankAccountId}: ${newCurrentBalance}`);
       }
     }
 
